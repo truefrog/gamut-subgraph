@@ -1,4 +1,2 @@
-# Gamut DEX Subgraph
-
-### Subgraph Endpoint 
+# Uniswap V3 Subgraph
 

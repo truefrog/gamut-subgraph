@@ -1,5 +1,5 @@
 {
-  "extends": "@graphprotocol/graph-ts/tsconfig",
+  "extends": "./node_modules/@graphprotocol/graph-ts/tsconfig.json",
   "compilerOptions": {
     "types": ["@graphprotocol/graph-ts"]
   }

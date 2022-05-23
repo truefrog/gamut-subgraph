@@ -69,26 +69,23 @@ export function bigDecimalExp18(): BigDecimal {
   return BigDecimal.fromString('1000000000000000000')
 }
 
-export function convertTokenToDecimal(tokenAmount: BigInt, exchangeDecimals: BigInt): BigDecimal {
-  if (exchangeDecimals == ZERO_BI) {
-    return tokenAmount.toBigDecimal()
-  }
-  return tokenAmount.toBigDecimal().div(exponentToBigDecimal(exchangeDecimals))
+export function convertTokenToDecimal(tokenAmount: BigInt): BigDecimal {
+  return tokenAmount.toBigDecimal().div(exponentToBigDecimal(18))
 }
 
 export function convertEthToDecimal(eth: BigInt): BigDecimal {
   return eth.toBigDecimal().div(exponentToBigDecimal(18))
 }
 
-export function loadTransaction(event: ethereum.Event): Transaction {
-  let transaction = Transaction.load(event.transaction.hash.toHexString())
+export function loadTransaction(call: ethereum.Call): Transaction {
+  let transaction = Transaction.load(call.transaction.hash.toHexString())
   if (transaction === null) {
-    transaction = new Transaction(event.transaction.hash.toHexString())
+    transaction = new Transaction(call.transaction.hash.toHexString())
   }
-  transaction.blockNumber = event.block.number
-  transaction.timestamp = event.block.timestamp
-  transaction.gasUsed = event.transaction.gasUsed
-  transaction.gasPrice = event.transaction.gasPrice
+  transaction.blockNumber = call.block.number
+  transaction.timestamp = call.block.timestamp
+  transaction.gasUsed = call.transaction.gasUsed
+  transaction.gasPrice = call.transaction.gasPrice
   transaction.save()
   return transaction as Transaction
 }

@@ -1,22 +1,14 @@
 [
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      },
-      {
-        "indexed": true,
-        "internalType": "int24",
-        "name": "tickSpacing",
-        "type": "int24"
+        "internalType": "address",
+        "name": "routerAddress",
+        "type": "address"
       }
     ],
-    "name": "FeeAmountEnabled",
-    "type": "event"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -24,7 +16,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "oldOwner",
+        "name": "previousOwner",
         "type": "address"
       },
       {
@@ -34,7 +26,7 @@
         "type": "address"
       }
     ],
-    "name": "OwnerChanged",
+    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -54,18 +46,6 @@
       },
       {
         "indexed": true,
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "tickSpacing",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
         "internalType": "address",
         "name": "pool",
         "type": "address"
@@ -75,66 +55,45 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenA",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenB",
-        "type": "address"
-      },
-      {
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      }
-    ],
-    "name": "createPool",
+    "inputs": [],
+    "name": "_getProtocolSwapFeePercentage",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "pool",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      },
-      {
-        "internalType": "int24",
-        "name": "tickSpacing",
-        "type": "int24"
-      }
-    ],
-    "name": "enableFeeAmount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
-      }
-    ],
-    "name": "feeAmountTickSpacing",
-    "outputs": [
-      {
-        "internalType": "int24",
+        "internalType": "uint256",
         "name": "",
-        "type": "int24"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "allPools",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "allPoolsLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -153,16 +112,81 @@
         "type": "address"
       },
       {
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
+        "internalType": "uint256",
+        "name": "weightA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "weightB",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_swapFeePercentage",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_changeSwapFee",
+        "type": "bool"
+      }
+    ],
+    "name": "create",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "name": "getPool",
     "outputs": [
       {
         "internalType": "address",
-        "name": "pool",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getProtocolFeesCollector",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRouter",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
         "type": "address"
       }
     ],
@@ -183,14 +207,34 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_newProtocolFeeCollector",
         "type": "address"
       }
     ],
-    "name": "setOwner",
+    "name": "setProtocolFeeCollector",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

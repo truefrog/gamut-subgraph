@@ -1,7 +1,7 @@
 import { ZERO_BD, ZERO_BI, ONE_BI } from './constants'
 /* eslint-disable prefer-const */
 import {
-  UniswapDayData,
+  GamutDayData,
   Factory,
   Pool,
   PoolDayData,
@@ -20,35 +20,35 @@ import { ethereum } from '@graphprotocol/graph-ts'
  * Tracks global aggregate data over daily windows
  * @param event
  */
-export function updateUniswapDayData(event: ethereum.Event): UniswapDayData {
-  let uniswap = Factory.load(FACTORY_ADDRESS)
-  let timestamp = event.block.timestamp.toI32()
+export function updateGamutDayData(call: ethereum.Call): GamutDayData {
+  let gamut = Factory.load(FACTORY_ADDRESS)
+  let timestamp = call.block.timestamp.toI32()
   let dayID = timestamp / 86400 // rounded
   let dayStartTimestamp = dayID * 86400
-  let uniswapDayData = UniswapDayData.load(dayID.toString())
-  if (uniswapDayData === null) {
-    uniswapDayData = new UniswapDayData(dayID.toString())
-    uniswapDayData.date = dayStartTimestamp
-    uniswapDayData.volumeETH = ZERO_BD
-    uniswapDayData.volumeUSD = ZERO_BD
-    uniswapDayData.volumeUSDUntracked = ZERO_BD
-    uniswapDayData.feesUSD = ZERO_BD
+  let gamutDayData = GamutDayData.load(dayID.toString())
+  if (gamutDayData === null) {
+    gamutDayData = new GamutDayData(dayID.toString())
+    gamutDayData.date = dayStartTimestamp
+    gamutDayData.volumeETH = ZERO_BD
+    gamutDayData.volumeUSD = ZERO_BD
+    gamutDayData.volumeUSDUntracked = ZERO_BD
+    gamutDayData.feesUSD = ZERO_BD
   }
-  uniswapDayData.tvlUSD = uniswap.totalValueLockedUSD
-  uniswapDayData.txCount = uniswap.txCount
-  uniswapDayData.save()
-  return uniswapDayData as UniswapDayData
+  gamutDayData.tvlUSD = gamut.totalValueLockedUSD
+  gamutDayData.txCount = gamut.txCount
+  gamutDayData.save()
+  return gamutDayData as GamutDayData
 }
 
-export function updatePoolDayData(event: ethereum.Event): PoolDayData {
-  let timestamp = event.block.timestamp.toI32()
+export function updatePoolDayData(call: ethereum.Call): PoolDayData {
+  let timestamp = call.block.timestamp.toI32()
   let dayID = timestamp / 86400
   let dayStartTimestamp = dayID * 86400
-  let dayPoolID = event.address
+  let dayPoolID = call.from
     .toHexString()
     .concat('-')
     .concat(dayID.toString())
-  let pool = Pool.load(event.address.toHexString())
+  let pool = Pool.load(call.from.toHexString())
   let poolDayData = PoolDayData.load(dayPoolID)
   if (poolDayData === null) {
     poolDayData = new PoolDayData(dayPoolID)
@@ -60,8 +60,6 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
     poolDayData.volumeUSD = ZERO_BD
     poolDayData.feesUSD = ZERO_BD
     poolDayData.txCount = ZERO_BI
-    poolDayData.feeGrowthGlobal0X128 = ZERO_BI
-    poolDayData.feeGrowthGlobal1X128 = ZERO_BI
     poolDayData.open = pool.token0Price
     poolDayData.high = pool.token0Price
     poolDayData.low = pool.token0Price
@@ -75,13 +73,8 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
     poolDayData.low = pool.token0Price
   }
 
-  poolDayData.liquidity = pool.liquidity
-  poolDayData.sqrtPrice = pool.sqrtPrice
-  poolDayData.feeGrowthGlobal0X128 = pool.feeGrowthGlobal0X128
-  poolDayData.feeGrowthGlobal1X128 = pool.feeGrowthGlobal1X128
   poolDayData.token0Price = pool.token0Price
   poolDayData.token1Price = pool.token1Price
-  poolDayData.tick = pool.tick
   poolDayData.tvlUSD = pool.totalValueLockedUSD
   poolDayData.txCount = poolDayData.txCount.plus(ONE_BI)
   poolDayData.save()
@@ -89,15 +82,15 @@ export function updatePoolDayData(event: ethereum.Event): PoolDayData {
   return poolDayData as PoolDayData
 }
 
-export function updatePoolHourData(event: ethereum.Event): PoolHourData {
-  let timestamp = event.block.timestamp.toI32()
+export function updatePoolHourData(call: ethereum.Call): PoolHourData {
+  let timestamp = call.block.timestamp.toI32()
   let hourIndex = timestamp / 3600 // get unique hour within unix history
   let hourStartUnix = hourIndex * 3600 // want the rounded effect
-  let hourPoolID = event.address
+  let hourPoolID = call.from
     .toHexString()
     .concat('-')
     .concat(hourIndex.toString())
-  let pool = Pool.load(event.address.toHexString())
+  let pool = Pool.load(call.from.toHexString())
   let poolHourData = PoolHourData.load(hourPoolID)
   if (poolHourData === null) {
     poolHourData = new PoolHourData(hourPoolID)
@@ -109,8 +102,6 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
     poolHourData.volumeUSD = ZERO_BD
     poolHourData.txCount = ZERO_BI
     poolHourData.feesUSD = ZERO_BD
-    poolHourData.feeGrowthGlobal0X128 = ZERO_BI
-    poolHourData.feeGrowthGlobal1X128 = ZERO_BI
     poolHourData.open = pool.token0Price
     poolHourData.high = pool.token0Price
     poolHourData.low = pool.token0Price
@@ -124,14 +115,10 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
     poolHourData.low = pool.token0Price
   }
 
-  poolHourData.liquidity = pool.liquidity
-  poolHourData.sqrtPrice = pool.sqrtPrice
+  
   poolHourData.token0Price = pool.token0Price
   poolHourData.token1Price = pool.token1Price
-  poolHourData.feeGrowthGlobal0X128 = pool.feeGrowthGlobal0X128
-  poolHourData.feeGrowthGlobal1X128 = pool.feeGrowthGlobal1X128
   poolHourData.close = pool.token0Price
-  poolHourData.tick = pool.tick
   poolHourData.tvlUSD = pool.totalValueLockedUSD
   poolHourData.txCount = poolHourData.txCount.plus(ONE_BI)
   poolHourData.save()
@@ -140,9 +127,9 @@ export function updatePoolHourData(event: ethereum.Event): PoolHourData {
   return poolHourData as PoolHourData
 }
 
-export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDayData {
+export function updateTokenDayData(token: Token, call: ethereum.Call): TokenDayData {
   let bundle = Bundle.load('1')
-  let timestamp = event.block.timestamp.toI32()
+  let timestamp = call.block.timestamp.toI32()
   let dayID = timestamp / 86400
   let dayStartTimestamp = dayID * 86400
   let tokenDayID = token.id
@@ -183,9 +170,9 @@ export function updateTokenDayData(token: Token, event: ethereum.Event): TokenDa
   return tokenDayData as TokenDayData
 }
 
-export function updateTokenHourData(token: Token, event: ethereum.Event): TokenHourData {
+export function updateTokenHourData(token: Token, call: ethereum.Call): TokenHourData {
   let bundle = Bundle.load('1')
-  let timestamp = event.block.timestamp.toI32()
+  let timestamp = call.block.timestamp.toI32()
   let hourIndex = timestamp / 3600 // get unique hour within unix history
   let hourStartUnix = hourIndex * 3600 // want the rounded effect
   let tokenHourID = token.id
@@ -224,30 +211,4 @@ export function updateTokenHourData(token: Token, event: ethereum.Event): TokenH
   tokenHourData.save()
 
   return tokenHourData as TokenHourData
-}
-
-export function updateTickDayData(tick: Tick, event: ethereum.Event): TickDayData {
-  let timestamp = event.block.timestamp.toI32()
-  let dayID = timestamp / 86400
-  let dayStartTimestamp = dayID * 86400
-  let tickDayDataID = tick.id.concat('-').concat(dayID.toString())
-  let tickDayData = TickDayData.load(tickDayDataID)
-  if (tickDayData === null) {
-    tickDayData = new TickDayData(tickDayDataID)
-    tickDayData.date = dayStartTimestamp
-    tickDayData.pool = tick.pool
-    tickDayData.tick = tick.id
-  }
-  tickDayData.liquidityGross = tick.liquidityGross
-  tickDayData.liquidityNet = tick.liquidityNet
-  tickDayData.volumeToken0 = tick.volumeToken0
-  tickDayData.volumeToken1 = tick.volumeToken0
-  tickDayData.volumeUSD = tick.volumeUSD
-  tickDayData.feesUSD = tick.feesUSD
-  tickDayData.feeGrowthOutside0X128 = tick.feeGrowthOutside0X128
-  tickDayData.feeGrowthOutside1X128 = tick.feeGrowthOutside1X128
-
-  tickDayData.save()
-
-  return tickDayData as TickDayData
 }
